@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Open in Road Pals</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="card-page">
+  <p class="brand">Road Pals</p>
+  <h1 id="title">Opening Road Pals…</h1>
+  <p id="what" class="muted">If nothing happens, tap the button.</p>
+  <p><a id="open" class="button" href="#">Open in Road Pals</a></p>
+  <p class="muted">Don’t have Road Pals yet? It’s coming soon to the App Store and Google Play. You’ll need your own account (adults 18+ only).</p>
+</main>
+<script>
+(function () {
+  var path = location.hash.replace(/^#\/?/, '');
+  var safe = /^(trip|event|explore)\/[A-Za-z0-9_@.~%-]{1,80}(\?[A-Za-z0-9_=&%.~-]{0,200})?$/.test(path);
+  var button = document.getElementById('open');
+  if (!safe) {
+    document.getElementById('title').textContent = 'This link doesn’t look right';
+    document.getElementById('what').textContent = 'Ask the person who sent it to share it again from the app.';
+    button.style.display = 'none';
+    return;
+  }
+  var url = 'myexpoapp://' + path;
+  button.href = url;
+  location.href = url;
+})();
+</script>
+</body>
+</html>

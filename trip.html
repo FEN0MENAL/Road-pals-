@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Shared trip · Road Pals</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="card-page">
+  <p class="brand">Road Pals</p>
+  <h1 id="title">Shared trip</h1>
+  <div id="trip" class="trip" hidden>
+    <img id="photo" class="photo" alt="The driver’s photo" hidden>
+    <p class="label">Driver</p><p id="driver" class="big"></p>
+    <p class="label">Car</p><p id="car" class="big"></p>
+    <p id="plate" class="plate" hidden></p>
+    <p class="label">Set off</p><p id="when" class="big"></p>
+  </div>
+  <p id="note" class="muted">Loading…</p>
+  <p class="muted small">Road Pals never tracks anyone. This page stops working when the ride ends.</p>
+</main>
+<script>
+(function () {
+  var URL_ = "https://lahwgzytmlyqovwxddhn.supabase.co";
+  var KEY = "sb_publishable_K4MK1ARmBeHyNeMAyfP-HQ_y4xRtPa6";
+  var token = location.hash.replace(/^#/, '');
+  var note = document.getElementById('note');
+  function ended() {
+    document.getElementById('title').textContent = 'This trip has ended';
+    note.textContent = 'The ride is over (or the link is wrong), so it no longer shows the driver or the car.';
+  }
+  if (!/^[a-f0-9]{64}$/.test(token)) return ended();
+  fetch(URL_ + '/rest/v1/rpc/shared_trip', {
+    method: 'POST',
+    headers: { apikey: KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: token })
+  })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (t) {
+      if (!t || !t.ok) return ended();
+      document.getElementById('driver').textContent = t.first_name;
+      document.getElementById('car').textContent = t.car ? [t.car.colour, t.car.make, t.car.model].join(' ') : 'Not added yet';
+      if (t.car && t.car.plate) { var p = document.getElementById('plate'); p.textContent = t.car.plate; p.hidden = false; }
+      document.getElementById('when').textContent = new Date(t.depart_at).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      if (t.photo_url && t.photo_url.indexOf(URL_ + '/storage/') === 0) { var img = document.getElementById('photo'); img.src = t.photo_url; img.hidden = false; }
+      document.getElementById('trip').hidden = false;
+      note.textContent = 'Shared with you from a ' + "Road Pals" + ' ride.';
+    })
+    .catch(function () { note.textContent = 'Couldn’t load the trip. Check your connection and try again.'; });
+})();
+</script>
+</body>
+</html>
